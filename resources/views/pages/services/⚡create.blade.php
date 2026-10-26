@@ -3,8 +3,10 @@
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use App\Models\Service;
+use Flux\Flux;
 
-new #[Title('Add service')] class extends Component {
+new #[Title('Add service')]
+    class extends Component {
     public string $name = '';
     public string $price = '';
     public string $duration_minutes = '';
@@ -23,7 +25,10 @@ new #[Title('Add service')] class extends Component {
         $service->duration_minutes = $validated['duration_minutes'];
         $service->save();
 
-        session()->flash('success', 'Service created successfully.');
+        Flux::toast(
+            text: 'Service created successfully.',
+            variant: 'success',
+        );
 
         $this->redirectRoute('services.index', navigate: true);
     }

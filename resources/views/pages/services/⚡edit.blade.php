@@ -7,7 +7,7 @@ use Livewire\Component;
 new class extends Component {
     public function render(): View
     {
-        return $this->view()->title('Edit '.$this->service->name);
+        return $this->view()->title('Edit ' . $this->service->name);
     }
 
     public Service $service;
@@ -41,7 +41,10 @@ new class extends Component {
         $this->service->duration_minutes = $validated['duration_minutes'];
         $this->service->save();
 
-        session()->flash('success', 'Service updated successfully.');
+        Flux::toast(
+            text: 'Service updated successfully.',
+            variant: 'success',
+        );
 
         $this->redirectRoute('services.index', navigate: true);
     }

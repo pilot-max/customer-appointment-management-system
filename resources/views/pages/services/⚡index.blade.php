@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Service;
+use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Services')] class extends Component {
+new #[Title('Services')]
+    class extends Component {
     #[Computed]
     public function services(): Collection
     {
@@ -23,7 +25,11 @@ new #[Title('Services')] class extends Component {
 
         unset($this->services);
 
-        session()->flash('success', 'Service deleted successfully.');
+
+        Flux::toast(
+            text: 'Service deleted successfully.',
+            variant: 'success',
+        );
     }
 };
 ?>
@@ -49,26 +55,28 @@ new #[Title('Services')] class extends Component {
 
     <div class="space-y-3">
         @forelse ($this->services as $service)
-            <div wire:key="service-{{ $service->id }}" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
-                <flux:heading>{{ $service->name }}</flux:heading>
+            <div wire:key="service-{{ $service->id }}"
+                class="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                <a href="{{ route('services.show', $service) }}" wire:navigate
+                    class="min-w-0 flex-1 rounded focus-visible:outline-2 focus-visible:outline-offset-4">
+                    <flux:heading class="break-words">{{ $service->name }}</flux:heading>
 
-                <flux:text>
-                    Price: {{ $service->price }}
-                    · Duration: {{ $service->duration_minutes }} minutes
-                </flux:text>
+                    <flux:text>
+                        Price: {{ $service->price }}
+                        · Duration: {{ $service->duration_minutes }} minutes
+                    </flux:text>
+                </a>
 
-                <flux:button :href="route('services.show', $service)" wire:navigate>
-                    View
-                </flux:button>
+                <div class="flex shrink-0 flex-wrap justify-end gap-2">
+                    <flux:button :href="route('services.edit', $service)" wire:navigate>
+                        Edit
+                    </flux:button>
 
-                <flux:button :href="route('services.edit', $service)" wire:navigate>
-                    Edit
-                </flux:button>
-
-                <flux:button variant="danger" wire:click="delete({{ $service->id }})"
-                    wire:confirm="Delete this service? Existing appointments will be retained.">
-                    Delete
-                </flux:button>
+                    <flux:button variant="danger" wire:click="delete({{ $service->id }})"
+                        wire:confirm="Delete this service? Existing appointments will be retained.">
+                        Delete
+                    </flux:button>
+                </div>
             </div>
         @empty
             <flux:text>
