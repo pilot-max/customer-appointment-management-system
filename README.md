@@ -8,8 +8,10 @@ Built with Laravel 13, Livewire 4, Flux UI, and Tailwind CSS. GitHub Projects is
 
 - Owner login/logout and an interactive owner-account creation command.
 - Service management: list, create, view, edit, validate, and soft-delete services.
-- Service navigation, page titles, and automated service feature tests.
-- Customer management and appointment scheduling remain planned work. In particular, preservation of booked service details must still be implemented and tested with appointments.
+- Customer management: list, create, view, edit, validate, and soft-delete customers.
+- Sidebar navigation, page titles, clickable record details, and success toasts for customer actions.
+- Automated customer and service feature tests.
+- Appointment scheduling and filtering remain planned work. Preservation of booked service details must still be implemented and tested with appointments.
 
 ## Requirements
 
@@ -82,7 +84,7 @@ Public registration and email verification are disabled. Password resets, option
 php artisan serve
 ```
 
-Open `http://localhost:8000`, log in, and choose **Services** in the sidebar. For frontend development, run this in a second terminal:
+Open `http://localhost:8000`, log in, and choose **Customers** or **Services** in the sidebar. For frontend development, run this in a second terminal:
 
 ```bash
 npm run dev
@@ -106,6 +108,16 @@ After changing environment configuration, run:
 php artisan config:clear
 ```
 
+## Customer management
+
+Use **Customers** in the sidebar to create a customer, open their details by clicking the contact information, edit their details, or delete them after confirmation.
+
+- Name, phone number, and email address are required; names and email addresses support up to 255 characters.
+- Email addresses must have a valid format. Customers may share an email address or phone number.
+- Phone numbers must contain 7 to 15 digits and may include a leading `+`, spaces, parentheses, dots, and hyphens. Formatting and leading zeros are preserved. This checks format only, not whether the number exists; extensions are not currently supported.
+- Successful creation, editing, and deletion display a toast notification.
+- Deletion is soft deletion: the customer disappears from the active list, but the database record remains. There is currently no restore interface.
+
 ## Tests and quality checks
 
 Run the full quality pipeline used by CI:
@@ -127,6 +139,14 @@ Run the service tests:
 ```bash
 php artisan test --compact tests/Feature/ServiceManagementTest.php tests/Feature/ServiceDetailsTest.php
 ```
+
+Run the customer tests:
+
+```bash
+php artisan test --compact tests/Feature/CustomerManagementTest.php
+```
+
+Customer coverage includes creation, editing, details, alphabetical listing, validation boundaries and phone formats, shared contact details, guest restrictions, soft deletion, missing/deleted records, HTML escaping, navigation links, and success-toast events. Toast appearance and browser confirmation dialogs still require manual checks.
 
 `phpunit.xml` configures an in-memory SQLite test database and array-backed session/cache/mail drivers. Tests use temporary data rather than the local development database. Do not override these settings with a real database when running the tests.
 
