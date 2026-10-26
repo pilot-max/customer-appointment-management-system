@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Service;
+use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Services')] class extends Component {
+new #[Title('Services')]
+    class extends Component {
     #[Computed]
     public function services(): Collection
     {
@@ -23,7 +25,11 @@ new #[Title('Services')] class extends Component {
 
         unset($this->services);
 
-        session()->flash('success', 'Service deleted successfully.');
+
+        Flux::toast(
+            text: 'Service deleted successfully.',
+            variant: 'success',
+        );
     }
 };
 ?>
