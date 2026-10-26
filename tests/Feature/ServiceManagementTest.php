@@ -128,7 +128,8 @@ test('the owner can update a service without changing another service', function
         'price' => '15.00', 'duration_minutes' => 15,
     ]);
     $this->assertDatabaseCount('services', 2);
-    expect(session('success'))->toBe('Service updated successfully.');
+    $component->assertDispatched('toast-show', fn ($event, $params) => $params['slots']['text'] === 'Service updated successfully.'
+        && $params['dataset']['variant'] === 'success');
 });
 
 test('invalid edits leave the stored service unchanged', function (string $field, string $value, string $rule) {
@@ -159,7 +160,8 @@ test('deleting a service retains its record and removes it from the list', funct
     $component->call('delete', $service->id);
 
     $component->assertDontSee('Haircut')->assertSee('Beard trim')
-        ->assertSee('Service deleted successfully.');
+        ->assertDispatched('toast-show', fn ($event, $params) => $params['slots']['text'] === 'Service deleted successfully.'
+            && $params['dataset']['variant'] === 'success');
     $this->assertSoftDeleted($service);
     $this->assertNotSoftDeleted($other);
     $this->assertDatabaseCount('services', 2);

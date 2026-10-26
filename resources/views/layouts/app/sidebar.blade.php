@@ -24,6 +24,10 @@
                     {{ __('Services') }}
                 </flux:sidebar.item>
             </flux:sidebar.group>
+            <flux:sidebar.item icon="users" :href="route('customers.index')"
+                :current="request()->routeIs('customers.*')" wire:navigate>
+                {{ __('Customers') }}
+            </flux:sidebar.item>
         </flux:sidebar.nav>
 
         <flux:spacer />

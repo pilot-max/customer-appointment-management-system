@@ -7,14 +7,19 @@ Route::view('/', 'welcome')->name('home');
 Route::middleware(['auth'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
-    Route::livewire('/services', 'pages::services.index')
-        ->name('services.index');
-    Route::livewire('/services/create', 'pages::services.create')
-        ->name('services.create');
-    Route::livewire('/services/{service}/edit', 'pages::services.edit')
-        ->name('services.edit');
-    Route::livewire('/services/{service}', 'pages::services.show')
-        ->name('services.show');
+    Route::prefix('services')->name('services.')->group(function () {
+        Route::livewire('/', 'pages::services.index')->name('index');
+        Route::livewire('/create', 'pages::services.create')->name('create');
+        Route::livewire('/{service}/edit', 'pages::services.edit')->name('edit');
+        Route::livewire('/{service}', 'pages::services.show')->name('show');
+    });
+
+    Route::prefix('customers')->name('customers.')->group(function () {
+        Route::livewire('/', 'pages::customers.index')->name('index');
+        Route::livewire('/create', 'pages::customers.create')->name('create');
+        Route::livewire('/{customer}/edit', 'pages::customers.edit')->name('edit');
+        Route::livewire('/{customer}', 'pages::customers.show')->name('show');
+    });
 });
 
 require __DIR__.'/settings.php';
