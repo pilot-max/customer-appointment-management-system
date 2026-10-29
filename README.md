@@ -10,8 +10,10 @@ Built with Laravel 13, Livewire 4, Flux UI, and Tailwind CSS. GitHub Projects is
 - Service management: list, create, view, edit, validate, and soft-delete services.
 - Customer management: list, create, view, edit, validate, and soft-delete customers.
 - Sidebar navigation, page titles, clickable record details, and success toasts for customer actions.
-- Automated customer and service feature tests.
-- Appointment scheduling and filtering remain planned work. Preservation of booked service details must still be implemented and tested with appointments.
+- Appointment management: book, view, edit, reschedule, cancel, and complete appointments, with automatic end times and overlap prevention.
+- Chronological appointment lists with date/status filters, an upcoming-only option, and colour-coded status badges.
+- Booked service details are preserved when the service catalogue changes, including when the original service is soft-deleted.
+- Automated customer, service, and appointment feature tests.
 
 ## Requirements
 
@@ -84,7 +86,7 @@ Public registration and email verification are disabled. Password resets, option
 php artisan serve
 ```
 
-Open `http://localhost:8000`, log in, and choose **Customers** or **Services** in the sidebar. For frontend development, run this in a second terminal:
+Open `http://localhost:8000`, log in, and choose **Customers**, **Services**, or **Appointments** in the sidebar. For frontend development, run this in a second terminal:
 
 ```bash
 npm run dev
@@ -118,6 +120,19 @@ Use **Customers** in the sidebar to create a customer, open their details by cli
 - Successful creation, editing, and deletion display a toast notification.
 - Deletion is soft deletion: the customer disappears from the active list, but the database record remains. There is currently no restore interface.
 
+## Appointment management
+
+Use **Appointments** in the sidebar, then **Book appointment** to choose an existing customer, service, and start date/time. Create a customer and service first if none are available.
+
+- End times are calculated from the booked service duration.
+- Dates and times represent the company's local wall-clock time. Input is stored and displayed unchanged, with no user-specific timezone conversion or daylight-saving adjustment.
+- Appointments cannot overlap another scheduled or completed appointment. Back-to-back appointments are allowed; cancelled appointments do not reserve time.
+- Click an appointment to view its details. Scheduled appointments can be edited, rescheduled, cancelled, or marked completed. Completed and cancelled appointments cannot be edited or reopened through the interface.
+- Each booking stores the service name, price, and duration at booking time. Editing the service catalogue does not change existing bookings. Rescheduling with the same service retains those details; selecting a different service takes a new snapshot.
+- Soft-deleted customers and services remain available on their existing appointments, but cannot be selected for new bookings.
+- The list is ordered by start time and paginated. By default it shows upcoming appointments. Turn off **Upcoming only** to include earlier bookings, or select a date to view bookings for that date regardless of the upcoming setting. Status filtering can be combined with either option.
+- Status badges use blue for scheduled, green for completed, and grey for cancelled appointments. Successful appointment actions display toast notifications.
+
 ## Tests and quality checks
 
 Run the full quality pipeline used by CI:
@@ -146,15 +161,23 @@ Run the customer tests:
 php artisan test --compact tests/Feature/CustomerManagementTest.php
 ```
 
-Customer coverage includes creation, editing, details, alphabetical listing, validation boundaries and phone formats, shared contact details, guest restrictions, soft deletion, missing/deleted records, HTML escaping, navigation links, and success-toast events. Toast appearance and browser confirmation dialogs still require manual checks.
+Run the appointment tests:
+
+```bash
+php artisan test --compact tests/Feature/AppointmentManagementTest.php
+```
+
+Customer coverage includes creation, editing, details, alphabetical listing, validation boundaries and phone formats, shared contact details, guest restrictions, soft deletion, missing/deleted records, HTML escaping, navigation links, and success-toast events.
+
+Appointment coverage includes authenticated access, booking and required fields, date validation, unchanged wall-clock times, automatic end times, overlap rejection, back-to-back bookings, released cancelled slots, rescheduling, preserved service snapshots and soft-deleted relationships, cancellation/completion, terminal-status restrictions, chronological ordering, and date/status filters.
 
 `phpunit.xml` configures an in-memory SQLite test database and array-backed session/cache/mail drivers. Tests use temporary data rather than the local development database. Do not override these settings with a real database when running the tests.
 
-Browser layout, mobile navigation, and deletion confirmation also need manual verification. Appointment-history acceptance checks remain pending until the appointment feature exists.
+Browser layout, mobile navigation, toast appearance, status colours in light/dark mode, and confirmation dialogs also need manual verification. Before delivery, manually walk through booking, overlap rejection, rescheduling, cancellation, completion, and filtering.
 
 ## Scope and delivery
 
-The planned application includes customer CRUD, service CRUD, appointment creation/rescheduling/cancellation/completion, overlap prevention, and chronological appointment views with date/status filters.
+The application includes customer CRUD, service CRUD, appointment creation/rescheduling/cancellation/completion, overlap prevention, and chronological appointment views with date/status filters.
 
 Payment processing, SMS notifications, external calendar integrations, customer accounts, multi-location support, elaborate custom UI, hosting, and deployment are outside this contract's scope.
 

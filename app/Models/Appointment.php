@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property CarbonImmutable $starts_at
+ * @property AppointmentStatus $status
  * @property CarbonImmutable $ends_at
  */
 class Appointment extends Model
