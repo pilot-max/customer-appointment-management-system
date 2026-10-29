@@ -19,15 +19,21 @@
                     wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="calendar-days" :href="route('appointments.index')"
+                    :current="request()->routeIs('appointments.*')" wire:navigate>
+                    {{ __('Appointments') }}
+                </flux:sidebar.item>
+            </flux:sidebar.group>
+            <flux:sidebar.group :heading="__('Admin')" class="grid">
                 <flux:sidebar.item icon="briefcase" :href="route('services.index')"
                     :current="request()->routeIs('services.*')" wire:navigate>
                     {{ __('Services') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="users" :href="route('customers.index')"
+                    :current="request()->routeIs('customers.*')" wire:navigate>
+                    {{ __('Customers') }}
+                </flux:sidebar.item>
             </flux:sidebar.group>
-            <flux:sidebar.item icon="users" :href="route('customers.index')"
-                :current="request()->routeIs('customers.*')" wire:navigate>
-                {{ __('Customers') }}
-            </flux:sidebar.item>
         </flux:sidebar.nav>
 
         <flux:spacer />
