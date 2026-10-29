@@ -20,6 +20,13 @@ Route::middleware(['auth'])->group(function () {
         Route::livewire('/{customer}/edit', 'pages::customers.edit')->name('edit');
         Route::livewire('/{customer}', 'pages::customers.show')->name('show');
     });
+
+    Route::prefix('appointments')->name('appointments.')->group(function () {
+        Route::livewire('/', 'pages::appointments.index')->name('index');
+        Route::livewire('/create', 'pages::appointments.create')->name('create');
+        Route::livewire('/{appointment}/edit', 'pages::appointments.edit')->name('edit');
+        Route::livewire('/{appointment}', 'pages::appointments.show')->name('show');
+    });
 });
 
 require __DIR__.'/settings.php';
