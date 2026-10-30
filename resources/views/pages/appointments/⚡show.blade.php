@@ -31,7 +31,12 @@ new #[Title('Appointment details')] class extends Component {
 
 <div class="max-w-2xl">
     <flux:heading size="xl">Appointment details</flux:heading>
-    <div class="my-4"><flux:badge>{{ ucfirst($appointment->status->value) }}</flux:badge></div>
+    <div class="my-4 flex flex-wrap gap-2">
+        <flux:badge :color="$appointment->status->badgeColor()">{{ ucfirst($appointment->status->value) }}</flux:badge>
+        @if ($appointment->isOverdue())
+            <flux:badge color="amber">Overdue</flux:badge>
+        @endif
+    </div>
     <flux:error name="status" />
     <dl class="my-6 grid gap-5 sm:grid-cols-2">
         <div><dt><flux:heading>Customer</flux:heading></dt><dd><flux:text>{{ $appointment->customer?->name ?? 'Removed customer' }}</flux:text></dd></div>

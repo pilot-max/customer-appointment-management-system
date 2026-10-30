@@ -11,7 +11,7 @@ Built with Laravel 13, Livewire 4, Flux UI, and Tailwind CSS. GitHub Projects is
 - Customer management: list, create, view, edit, validate, and soft-delete customers.
 - Sidebar navigation, page titles, clickable record details, and success toasts for customer actions.
 - Appointment management: book, view, edit, reschedule, cancel, and complete appointments, with automatic end times and overlap prevention.
-- Chronological appointment lists with date/status filters, an upcoming-only option, and colour-coded status badges.
+- Chronological appointment lists with date/status filters, an upcoming-and-overdue option, and colour-coded status badges.
 - Booked service details are preserved when the service catalogue changes, including when the original service is soft-deleted.
 - Automated customer, service, and appointment feature tests.
 
@@ -130,7 +130,8 @@ Use **Appointments** in the sidebar, then **Book appointment** to choose an exis
 - Click an appointment to view its details. Scheduled appointments can be edited, rescheduled, cancelled, or marked completed. Completed and cancelled appointments cannot be edited or reopened through the interface.
 - Each booking stores the service name, price, and duration at booking time. Editing the service catalogue does not change existing bookings. Rescheduling with the same service retains those details; selecting a different service takes a new snapshot.
 - Soft-deleted customers and services remain available on their existing appointments, but cannot be selected for new bookings.
-- The list is ordered by start time and paginated. By default it shows upcoming appointments. Turn off **Upcoming only** to include earlier bookings, or select a date to view bookings for that date regardless of the upcoming setting. Status filtering can be combined with either option.
+- The list is ordered by start time and paginated. By default it shows upcoming appointments plus overdue scheduled appointments. Turn off **Upcoming and overdue** to include all earlier bookings, or select a date to view bookings for that date regardless of the upcoming setting. Status filtering can be combined with either option.
+- Scheduled appointments whose end time has passed display an additional amber **Overdue** badge on the list and details page. This is calculated when the page renders; refresh an open page to update it as time passes. Completed and cancelled appointments are never overdue, and the saved status remains unchanged.
 - Status badges use blue for scheduled, green for completed, and grey for cancelled appointments. Successful appointment actions display toast notifications.
 
 ## Tests and quality checks

@@ -33,7 +33,11 @@ new #[Title('Appointments')]
 
         return Appointment::query()->with('customer')
             ->when($this->date !== '', fn($query) => $query->whereDate('starts_at', $this->date))
-            ->when($this->date === '' && $this->upcoming, fn($query) => $query->where('starts_at', '>=', now()->format('Y-m-d H:i:s')))
+            ->when($this->date === '' && $this->upcoming, fn($query) => $query->where(function ($query) {
+                $now = now()->format('Y-m-d H:i:s');
+                $query->where('starts_at', '>=', $now)
+                    ->orWhere(fn($query) => $query->where('status', AppointmentStatus::Scheduled->value)->where('ends_at', '<', $now));
+            }))
             ->when($this->status !== '', fn($query) => $query->where('status', $this->status))
             ->orderBy('starts_at')->orderBy('id')->paginate(15);
     }
@@ -58,7 +62,7 @@ new #[Title('Appointments')]
             @endforeach
         </flux:select>
         <div class="flex items-end pb-3">
-            <flux:checkbox wire:model.live="upcoming" label="Upcoming only (when no date is selected)" />
+            <flux:checkbox wire:model.live="upcoming" label="Upcoming and overdue (when no date is selected)" />
         </div>
     </div>
     <div class="space-y-3">
@@ -70,9 +74,14 @@ new #[Title('Appointments')]
                     <flux:heading>{{ $appointment->customer?->name ?? 'Removed customer' }} ·
                         {{ $appointment->service_name }}
                     </flux:heading>
-                    <flux:badge color="{{ $appointment->status->badgeColor() ?? 'zinc' }}">
-                        {{ ucfirst($appointment->status->value) }}
-                    </flux:badge>
+                    <div class="flex flex-wrap gap-2">
+                        <flux:badge color="{{ $appointment->status->badgeColor() ?? 'zinc' }}">
+                            {{ ucfirst($appointment->status->value) }}
+                        </flux:badge>
+                        @if ($appointment->isOverdue())
+                            <flux:badge color="amber">Overdue</flux:badge>
+                        @endif
+                    </div>
                 </div>
                 <flux:text>{{ $appointment->starts_at->format('M j, Y H:i') }} –
                     {{ $appointment->ends_at->format('M j, Y H:i') }}

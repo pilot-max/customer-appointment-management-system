@@ -9,6 +9,46 @@ use Database\Factories\ServiceFactory;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
+test('only scheduled appointments whose end time has passed are overdue', function (string $status, string $end, bool $overdue) {
+    $this->travelTo(now()->setDate(2030, 1, 10)->setTime(11, 0, 0));
+    $booking = AppointmentFactory::new()->create(['status' => $status, 'ends_at' => $end]);
+
+    expect($booking->isOverdue())->toBe($overdue);
+})->with([
+    'finished scheduled' => ['scheduled', '2030-01-10 10:59:59', true],
+    'exact end' => ['scheduled', '2030-01-10 11:00:00', false],
+    'in progress' => ['scheduled', '2030-01-10 11:30:00', false],
+    'completed' => ['completed', '2030-01-10 10:59:59', false],
+    'cancelled' => ['cancelled', '2030-01-10 10:59:59', false],
+]);
+
+test('appointment details show overdue until the owner completes the appointment', function () {
+    $this->travelTo(now()->setDate(2030, 1, 10)->setTime(12, 0, 0));
+    $this->actingAs(User::factory()->create());
+    $booking = AppointmentFactory::new()->create();
+
+    Livewire::test('pages::appointments.show', ['appointment' => $booking])
+        ->assertSee('Overdue')->assertSee('Scheduled')
+        ->call('complete')->assertDontSee('Overdue')->assertSee('Completed');
+});
+
+test('the default list includes overdue bookings while retaining date and status filters', function () {
+    $this->travelTo(now()->setDate(2030, 1, 10)->setTime(12, 0, 0));
+    $this->actingAs(User::factory()->create());
+    AppointmentFactory::new()->create(['service_name' => 'Overdue booking']);
+    AppointmentFactory::new()->create(['service_name' => 'Past completed', 'status' => 'completed']);
+    AppointmentFactory::new()->create(['service_name' => 'Past cancelled', 'status' => 'cancelled']);
+    AppointmentFactory::new()->create(['service_name' => 'Future booking', 'starts_at' => '2030-01-11 10:00:00', 'ends_at' => '2030-01-11 11:00:00']);
+
+    Livewire::test('pages::appointments.index')
+        ->assertSeeInOrder(['Overdue booking', 'Future booking'])->assertSee('Overdue')
+        ->assertDontSee('Past completed')->assertDontSee('Past cancelled')
+        ->set('status', 'completed')->assertDontSee('Overdue booking')
+        ->set('date', '2030-01-10')->assertSee('Past completed')->assertDontSee('Overdue')
+        ->set('status', 'scheduled')->set('date', '2030-01-11')
+        ->assertSee('Future booking')->assertDontSee('Overdue booking')->assertDontSee('Overdue');
+});
+
 test('guests cannot access appointment pages', function (string $routeName) {
     $appointment = AppointmentFactory::new()->create();
 

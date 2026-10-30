@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Appointment extends Model
 {
+    public function isOverdue(): bool
+    {
+        return $this->status === AppointmentStatus::Scheduled
+            && $this->ends_at->format('Y-m-d H:i:s') < now()->format('Y-m-d H:i:s');
+    }
+
     protected function casts(): array
     {
         return [
